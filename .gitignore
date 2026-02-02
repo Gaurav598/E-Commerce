@@ -1,0 +1,55 @@
+# =====================
+# Root level ignores
+# =====================
+
+node_modules/
+.env
+.env.*
+.DS_Store
+
+# =====================
+# Backend
+# =====================
+backend/node_modules/
+backend/.env
+
+# =====================
+# Mobile
+# =====================
+mobile/node_modules/
+mobile/.env
+mobile/.env.*
+
+# =====================
+# Admin
+# =====================
+admin/node_modules/
+admin/.env
+admin/dist
+
+# =====================
+# Expo / Build / Cache
+# =====================
+.expo/
+dist/
+build/
+
+# Root
+node_modules/
+.env
+.env.*
+
+# Backend
+backend/node_modules/
+backend/.env
+
+# Mobile
+mobile/node_modules/
+mobile/.env
+
+# Admin
+admin/node_modules/
+admin/dist
+
+# System
+.DS_Store
