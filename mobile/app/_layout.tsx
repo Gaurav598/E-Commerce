@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
-import { StripeProvider } from "@stripe/stripe-react-native";
+// import { StripeProvider } from "@stripe/stripe-react-native";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -30,11 +30,11 @@ export default function RootLayout() {
       tokenCache={tokenCache}
     >
       <QueryClientProvider client={queryClient}>
-        <StripeProvider
+        {/* <StripeProvider
           publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}
         >
           <Stack screenOptions={{ headerShown: false }} />
-        </StripeProvider>
+        </StripeProvider> */}
       </QueryClientProvider>
     </ClerkProvider>
   );

@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useStripe } from "@stripe/stripe-react-native";
+// import { useStripe } from "@stripe/stripe-react-native";
 import { useState } from "react";
 import { Address } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,7 +34,7 @@ const CartScreen = () => {
   } = useCart();
   const { addresses } = useAddresses();
 
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  // const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [addressModalVisible, setAddressModalVisible] = useState(false);
@@ -83,77 +83,93 @@ const CartScreen = () => {
     setAddressModalVisible(true);
   };
 
+  // const handleProceedWithPayment = async (selectedAddress: Address) => {
+  //   setAddressModalVisible(false);
+
+  //   // log chechkout initiated
+  //   console.log("Checkout initiated", {
+  //     itemCount: cartItemCount,
+  //     total: total.toFixed(2),
+  //     city: selectedAddress.city,
+  //   });
+
+    // try {
+    //   setPaymentLoading(true);
+
+    //   // create payment intent with cart items and shipping address
+    //   const { data } = await api.post("/payment/create-intent", {
+    //     cartItems,
+    //     shippingAddress: {
+    //       fullName: selectedAddress.fullName,
+    //       streetAddress: selectedAddress.streetAddress,
+    //       city: selectedAddress.city,
+    //       state: selectedAddress.state,
+    //       zipCode: selectedAddress.zipCode,
+    //       phoneNumber: selectedAddress.phoneNumber,
+    //     },
+    //   });
+
+    //   const { error: initError } = await initPaymentSheet({
+    //     paymentIntentClientSecret: data.clientSecret,
+    //     merchantDisplayName: "Your Store Name",
+    //   });
+
+    //   if (initError) {
+    //     console.error("Payment sheet init failed", initError);
+
+    //     Alert.alert("Error", initError.message);
+    //     setPaymentLoading(false);
+    //     return;
+    //   }
+
+    //   // present payment sheet
+    //   const { error: presentError } = await presentPaymentSheet();
+
+    //   if (presentError) {
+    //     console.warn("Payment cancelled", {
+    //       code: presentError.code,
+    //       message: presentError.message,
+    //       cartTotal: total,
+    //       itemCount: cartItems.length,
+    //     });
+
+    //     Alert.alert("Payment cancelled", presentError.message);
+    //   } else {
+    //     console.log("Payment successful", {
+    //       total: total.toFixed(2),
+    //     });
+
+    //     Alert.alert(
+    //       "Success",
+    //       "Your payment was successful! Your order is being processed.",
+    //       [{ text: "OK", onPress: () => {} }],
+    //     );
+    //     clearCart();
+    //   }
+    // } catch (error) {
+    //   console.error("Payment failed", error);
+
+    //   Alert.alert("Error", "Failed to process payment");
+  //   // } finally {
+  //     setPaymentLoading(false);
+  //   }
+  // };
   const handleProceedWithPayment = async (selectedAddress: Address) => {
-    setAddressModalVisible(false);
+  setAddressModalVisible(false);
 
-    // log chechkout initiated
-    console.log("Checkout initiated", {
-      itemCount: cartItemCount,
-      total: total.toFixed(2),
-      city: selectedAddress.city,
-    });
+  console.log("Checkout initiated", {
+    itemCount: cartItemCount,
+    total: total.toFixed(2),
+    city: selectedAddress.city,
+  });
 
-    try {
-      setPaymentLoading(true);
+  Alert.alert(
+    "Payments disabled",
+    "Payments will be enabled in the next version.",
+    [{ text: "OK" }]
+  );
+};
 
-      // create payment intent with cart items and shipping address
-      const { data } = await api.post("/payment/create-intent", {
-        cartItems,
-        shippingAddress: {
-          fullName: selectedAddress.fullName,
-          streetAddress: selectedAddress.streetAddress,
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          zipCode: selectedAddress.zipCode,
-          phoneNumber: selectedAddress.phoneNumber,
-        },
-      });
-
-      const { error: initError } = await initPaymentSheet({
-        paymentIntentClientSecret: data.clientSecret,
-        merchantDisplayName: "Your Store Name",
-      });
-
-      if (initError) {
-        console.error("Payment sheet init failed", initError);
-
-        Alert.alert("Error", initError.message);
-        setPaymentLoading(false);
-        return;
-      }
-
-      // present payment sheet
-      const { error: presentError } = await presentPaymentSheet();
-
-      if (presentError) {
-        console.warn("Payment cancelled", {
-          code: presentError.code,
-          message: presentError.message,
-          cartTotal: total,
-          itemCount: cartItems.length,
-        });
-
-        Alert.alert("Payment cancelled", presentError.message);
-      } else {
-        console.log("Payment successful", {
-          total: total.toFixed(2),
-        });
-
-        Alert.alert(
-          "Success",
-          "Your payment was successful! Your order is being processed.",
-          [{ text: "OK", onPress: () => {} }],
-        );
-        clearCart();
-      }
-    } catch (error) {
-      console.error("Payment failed", error);
-
-      Alert.alert("Error", "Failed to process payment");
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
 
   if (isLoading) return <LoadingUI />;
   if (isError) return <ErrorUI />;
