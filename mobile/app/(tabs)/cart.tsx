@@ -2,7 +2,14 @@ import SafeScreen from "@/components/SafeScreen";
 import { useAddresses } from "@/hooks/useAddressess";
 import useCart from "@/hooks/useCart";
 import { useApi } from "@/lib/api";
-import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useStripe } from "@stripe/stripe-react-native";
 import { useState } from "react";
 import { Address } from "@/types";
@@ -10,8 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import OrderSummary from "@/components/OrderSummary";
 import AddressSelectionModal from "@/components/AddressSelectionModal";
-
-import * as Sentry from "@sentry/react-native";
 
 const CartScreen = () => {
   const api = useApi();
@@ -40,7 +45,11 @@ const CartScreen = () => {
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
 
-  const handleQuantityChange = (productId: string, currentQuantity: number, change: number) => {
+  const handleQuantityChange = (
+    productId: string,
+    currentQuantity: number,
+    change: number,
+  ) => {
     const newQuantity = currentQuantity + change;
     if (newQuantity < 1) return;
     updateQuantity({ productId, quantity: newQuantity });
@@ -65,7 +74,7 @@ const CartScreen = () => {
       Alert.alert(
         "No Address",
         "Please add a shipping address in your profile before checking out.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
       return;
     }
@@ -78,7 +87,7 @@ const CartScreen = () => {
     setAddressModalVisible(false);
 
     // log chechkout initiated
-    Sentry.logger.info("Checkout initiated", {
+    console.log("Checkout initiated", {
       itemCount: cartItemCount,
       total: total.toFixed(2),
       city: selectedAddress.city,
@@ -106,12 +115,7 @@ const CartScreen = () => {
       });
 
       if (initError) {
-        Sentry.logger.error("Payment sheet init failed", {
-          errorCode: initError.code,
-          errorMessage: initError.message,
-          cartTotal: total,
-          itemCount: cartItems.length,
-        });
+        console.error("Payment sheet init failed", initError);
 
         Alert.alert("Error", initError.message);
         setPaymentLoading(false);
@@ -122,31 +126,28 @@ const CartScreen = () => {
       const { error: presentError } = await presentPaymentSheet();
 
       if (presentError) {
-        Sentry.logger.error("Payment cancelled", {
-          errorCode: presentError.code,
-          errorMessage: presentError.message,
+        console.warn("Payment cancelled", {
+          code: presentError.code,
+          message: presentError.message,
           cartTotal: total,
           itemCount: cartItems.length,
         });
 
         Alert.alert("Payment cancelled", presentError.message);
       } else {
-        Sentry.logger.info("Payment successful", {
+        console.log("Payment successful", {
           total: total.toFixed(2),
-          itemCount: cartItems.length,
         });
 
-        Alert.alert("Success", "Your payment was successful! Your order is being processed.", [
-          { text: "OK", onPress: () => {} },
-        ]);
+        Alert.alert(
+          "Success",
+          "Your payment was successful! Your order is being processed.",
+          [{ text: "OK", onPress: () => {} }],
+        );
         clearCart();
       }
     } catch (error) {
-      Sentry.logger.error("Payment failed", {
-        error: error instanceof Error ? error.message : "Unknown error",
-        cartTotal: total,
-        itemCount: cartItems.length,
-      });
+      console.error("Payment failed", error);
 
       Alert.alert("Error", "Failed to process payment");
     } finally {
@@ -160,7 +161,9 @@ const CartScreen = () => {
 
   return (
     <SafeScreen>
-      <Text className="px-6 pb-5 text-text-primary text-3xl font-bold tracking-tight">Cart</Text>
+      <Text className="px-6 pb-5 text-text-primary text-3xl font-bold tracking-tight">
+        Cart
+      </Text>
 
       <ScrollView
         className="flex-1"
@@ -169,7 +172,10 @@ const CartScreen = () => {
       >
         <View className="px-6 gap-2">
           {cartItems.map((item, index) => (
-            <View key={item._id} className="bg-surface rounded-3xl overflow-hidden ">
+            <View
+              key={item._id}
+              className="bg-surface rounded-3xl overflow-hidden "
+            >
               <View className="p-4 flex-row">
                 {/* product image */}
                 <View className="relative">
@@ -180,7 +186,9 @@ const CartScreen = () => {
                     style={{ width: 112, height: 112, borderRadius: 16 }}
                   />
                   <View className="absolute top-2 right-2 bg-primary rounded-full px-2 py-0.5">
-                    <Text className="text-background text-xs font-bold">×{item.quantity}</Text>
+                    <Text className="text-background text-xs font-bold">
+                      ×{item.quantity}
+                    </Text>
                   </View>
                 </View>
 
@@ -206,7 +214,13 @@ const CartScreen = () => {
                     <TouchableOpacity
                       className="bg-background-lighter rounded-full w-9 h-9 items-center justify-center"
                       activeOpacity={0.7}
-                      onPress={() => handleQuantityChange(item.product._id, item.quantity, -1)}
+                      onPress={() =>
+                        handleQuantityChange(
+                          item.product._id,
+                          item.quantity,
+                          -1,
+                        )
+                      }
                       disabled={isUpdating}
                     >
                       {isUpdating ? (
@@ -217,13 +231,17 @@ const CartScreen = () => {
                     </TouchableOpacity>
 
                     <View className="mx-4 min-w-[32px] items-center">
-                      <Text className="text-text-primary font-bold text-lg">{item.quantity}</Text>
+                      <Text className="text-text-primary font-bold text-lg">
+                        {item.quantity}
+                      </Text>
                     </View>
 
                     <TouchableOpacity
                       className="bg-primary rounded-full w-9 h-9 items-center justify-center"
                       activeOpacity={0.7}
-                      onPress={() => handleQuantityChange(item.product._id, item.quantity, 1)}
+                      onPress={() =>
+                        handleQuantityChange(item.product._id, item.quantity, 1)
+                      }
                       disabled={isUpdating}
                     >
                       {isUpdating ? (
@@ -236,10 +254,16 @@ const CartScreen = () => {
                     <TouchableOpacity
                       className="ml-auto bg-red-500/10 rounded-full w-9 h-9 items-center justify-center"
                       activeOpacity={0.7}
-                      onPress={() => handleRemoveItem(item.product._id, item.product.name)}
+                      onPress={() =>
+                        handleRemoveItem(item.product._id, item.product.name)
+                      }
                       disabled={isRemoving}
                     >
-                      <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                      <Ionicons
+                        name="trash-outline"
+                        size={18}
+                        color="#EF4444"
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -248,7 +272,12 @@ const CartScreen = () => {
           ))}
         </View>
 
-        <OrderSummary subtotal={subtotal} shipping={shipping} tax={tax} total={total} />
+        <OrderSummary
+          subtotal={subtotal}
+          shipping={shipping}
+          tax={tax}
+          total={total}
+        />
       </ScrollView>
 
       <View
@@ -264,7 +293,9 @@ const CartScreen = () => {
             </Text>
           </View>
           <View className="flex-row items-center">
-            <Text className="text-text-primary font-bold text-xl">${total.toFixed(2)}</Text>
+            <Text className="text-text-primary font-bold text-xl">
+              ${total.toFixed(2)}
+            </Text>
           </View>
         </View>
 
@@ -280,7 +311,9 @@ const CartScreen = () => {
               <ActivityIndicator size="small" color="#121212" />
             ) : (
               <>
-                <Text className="text-background font-bold text-lg mr-2">Checkout</Text>
+                <Text className="text-background font-bold text-lg mr-2">
+                  Checkout
+                </Text>
                 <Ionicons name="arrow-forward" size={20} color="#121212" />
               </>
             )}
@@ -313,7 +346,9 @@ function ErrorUI() {
   return (
     <View className="flex-1 bg-background items-center justify-center px-6">
       <Ionicons name="alert-circle-outline" size={64} color="#FF6B6B" />
-      <Text className="text-text-primary font-semibold text-xl mt-4">Failed to load cart</Text>
+      <Text className="text-text-primary font-semibold text-xl mt-4">
+        Failed to load cart
+      </Text>
       <Text className="text-text-secondary text-center mt-2">
         Please check your connection and try again
       </Text>
@@ -325,11 +360,15 @@ function EmptyUI() {
   return (
     <View className="flex-1 bg-background">
       <View className="px-6 pt-16 pb-5">
-        <Text className="text-text-primary text-3xl font-bold tracking-tight">Cart</Text>
+        <Text className="text-text-primary text-3xl font-bold tracking-tight">
+          Cart
+        </Text>
       </View>
       <View className="flex-1 items-center justify-center px-6">
         <Ionicons name="cart-outline" size={80} color="#666" />
-        <Text className="text-text-primary font-semibold text-xl mt-4">Your cart is empty</Text>
+        <Text className="text-text-primary font-semibold text-xl mt-4">
+          Your cart is empty
+        </Text>
         <Text className="text-text-secondary text-center mt-2">
           Add some products to get started
         </Text>
